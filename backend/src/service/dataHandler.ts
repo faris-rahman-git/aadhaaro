@@ -6,9 +6,8 @@ export const detectText = async (buffer: Buffer) => {
   };
 
   const result = await textract.detectDocumentText(params).promise();
-  const text = result.Blocks?.filter((block: any) => block.BlockType === "LINE")
-    .map((block: any) => block.Text)
+  const text = result.Blocks?.filter((block) => block.BlockType === "LINE")
+    .map((block) => block.Text)
     .join(" ");
   return text;
 };
-

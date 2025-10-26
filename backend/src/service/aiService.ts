@@ -62,7 +62,7 @@ ${combinedText}
       aiOutput = JSON.stringify(rawChoice);
     }
 
-    let parsed: any = null;
+    let parsed = null;
     try {
       parsed = JSON.parse(aiOutput.trim());
     } catch (parseErr) {
@@ -91,7 +91,7 @@ ${combinedText}
     }
 
     return parsed;
-  } catch (err: any) {
-    console.error("OpenRouter AI error:", err?.message || err);
+  } catch (err) {
+    console.error("OpenRouter AI error:", err);
   }
 };
