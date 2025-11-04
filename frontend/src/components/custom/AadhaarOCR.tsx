@@ -84,12 +84,14 @@ export default function AadhaarOCR() {
     setFrontFile(null);
     if (frontPreview) URL.revokeObjectURL(frontPreview);
     setFrontPreview(null);
+    if (frontInputRef.current) frontInputRef.current.value = "";
   }
 
   function removeBack() {
     setBackFile(null);
     if (backPreview) URL.revokeObjectURL(backPreview);
     setBackPreview(null);
+    if (backInputRef.current) backInputRef.current.value = "";
   }
 
   function onDropFront(e: React.DragEvent<HTMLDivElement>) {
@@ -124,14 +126,19 @@ export default function AadhaarOCR() {
     mutate(formData);
   };
 
-  const handleReset = () => {
+  function handleReset() {
     setFrontFile(null);
     setBackFile(null);
+    if (frontPreview) URL.revokeObjectURL(frontPreview);
+    if (backPreview) URL.revokeObjectURL(backPreview);
     setFrontPreview(null);
     setBackPreview(null);
     setError(null);
     setData(null);
-  };
+
+    if (frontInputRef.current) frontInputRef.current.value = "";
+    if (backInputRef.current) backInputRef.current.value = "";
+  }
 
   useEffect(() => {
     if (isSuccess) {
