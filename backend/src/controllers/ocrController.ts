@@ -32,6 +32,7 @@ export const scanDocHandler = async (req: Request, res: Response) => {
     }
 
     const data = await verifyAndFormatText(frontResult, backResult);
+    console.log(data)
     return res.status(StatusCode.OK).json({ data });
   } catch (err) {
     console.log(err);

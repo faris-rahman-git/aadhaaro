@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -20,16 +20,27 @@ type ResultType = {
 };
 
 export default function AadhaarOCR() {
-  const [frontFile, setFrontFile] = React.useState<File | null>(null);
-  const [backFile, setBackFile] = React.useState<File | null>(null);
-  const [frontPreview, setFrontPreview] = React.useState<string | null>(null);
-  const [backPreview, setBackPreview] = React.useState<string | null>(null);
+  const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [backFile, setBackFile] = useState<File | null>(null);
+  const [frontPreview, setFrontPreview] = useState<string | null>(null);
+  const [backPreview, setBackPreview] = useState<string | null>(null);
 
-  const [error, setError] = React.useState<string | null>(null);
-  const [data, setData] = React.useState<ResultType | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<ResultType | null>(null);
 
-  const frontInputRef = React.useRef<HTMLInputElement>(null);
-  const backInputRef = React.useRef<HTMLInputElement>(null);
+  const frontInputRef = useRef<HTMLInputElement>(null);
+  const backInputRef = useRef<HTMLInputElement>(null);
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const text = data
+      ? JSON.stringify(data, null, 2)
+      : "No data yet. Run OCR to extract details.";
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const {
     isPending,
@@ -40,7 +51,7 @@ export default function AadhaarOCR() {
     mutate,
   } = useScanDoc();
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (frontPreview) URL.revokeObjectURL(frontPreview);
       if (backPreview) URL.revokeObjectURL(backPreview);
@@ -111,6 +122,15 @@ export default function AadhaarOCR() {
     formData.append("front", frontFile);
     formData.append("back", backFile);
     mutate(formData);
+  };
+
+  const handleReset = () => {
+    setFrontFile(null);
+    setBackFile(null);
+    setFrontPreview(null);
+    setBackPreview(null);
+    setError(null);
+    setData(null);
   };
 
   useEffect(() => {
@@ -264,6 +284,7 @@ export default function AadhaarOCR() {
 
       {/* Actions */}
       <div className="flex items-center gap-3">
+        <Button onClick={handleReset}>Reset</Button>
         <Button
           onClick={handleScan}
           disabled={!(frontFile && backFile) || isPending}
@@ -289,7 +310,9 @@ export default function AadhaarOCR() {
                   <dt className="text-xs text-muted-foreground">
                     Aadhaar Number
                   </dt>
-                  <dd className="text-sm">{data.details.aadhaarNumber || "—"}</dd>
+                  <dd className="text-sm">
+                    {data.details.aadhaarNumber || "—"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Name</dt>
@@ -328,6 +351,11 @@ export default function AadhaarOCR() {
                   <summary className="cursor-pointer text-sm">
                     Show text
                   </summary>
+                  <div className="flex justify-end w-full">
+                    <Button size="sm" variant="outline" onClick={handleCopy}>
+                      {copied ? "Copied!" : "Copy"}
+                    </Button>
+                  </div>
                   <pre className="mt-3 max-h-80 overflow-auto rounded-md border bg-muted p-3 text-sm leading-relaxed whitespace-pre-wrap">
                     {data
                       ? JSON.stringify(data, null, 2)
